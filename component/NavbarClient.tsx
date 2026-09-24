@@ -5,7 +5,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Search, Menu, X, LogOut } from "lucide-react";
 import Link from "next/link";
 import AuthDrawer from "@/component/AuthDrawer";
-import { useSession, signOut } from "@/component/lib/auth-client";
+import { signOut } from "@/component/lib/auth-client";
+import { useProfileStore } from "@/lib/stores/useProfileStore";
 import UserDropdown from "@/component/UserDropdown";
 
 interface NavItem {
@@ -21,7 +22,9 @@ export default function NavbarClient({ navItems }: NavbarClientProps) {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  const { data: session, isPending } = useSession();
+  const { id, isHydrated } = useProfileStore();
+  const isPending = !isHydrated;
+  const session = !!id;
 
   return (
     <>

@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Navbar from "../component/Navbar";
 import { Toaster } from "sonner";
+import ProfileHydrator from "@/component/ProfileHydrator";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -27,6 +28,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     >
       <body className="min-h-full flex flex-col pt-16 bg-slate-950 text-slate-100">
         <Navbar />
+        <ProfileHydrator />
         {children}
         <Toaster />
         </body>

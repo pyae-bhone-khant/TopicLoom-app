@@ -3,7 +3,8 @@
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { User, ChevronDown, LogOut } from "lucide-react";
-import { useSession, signOut } from "@/component/lib/auth-client";
+import { signOut } from "@/component/lib/auth-client";
+import { useProfileStore } from "@/lib/stores/useProfileStore";
 import ProfileDrawer from "./ProfileDrawer";
 
 export default function UserDropdown() {
@@ -11,8 +12,7 @@ export default function UserDropdown() {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const { data: session } = useSession();
-  const user = session?.user;
+  const { name, email, image } = useProfileStore();
 
   // Close dropdown on outside click, but not while the profile drawer is open
   useEffect(() => {
@@ -45,10 +45,10 @@ export default function UserDropdown() {
         aria-haspopup="true"
         aria-expanded={isOpen}
       >
-        {user?.image ?
+        {image ?
           <img
-            src={user.image}
-            alt={user?.name || user?.email || ""}
+            src={image}
+            alt={name || email || ""}
             className="w-8 h-8 rounded-full border border-slate-600 object-cover"
           />
         : <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white">
@@ -56,7 +56,7 @@ export default function UserDropdown() {
           </div>
         }
         <span className="hidden sm:block text-sm font-medium text-slate-200 max-w-[120px] truncate">
-          {user?.name || user?.email}
+          {name || email}
         </span>
         <ChevronDown
           className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${
@@ -79,10 +79,10 @@ export default function UserDropdown() {
             {/* User Info Header */}
             <div className="px-4 py-3 border-b border-slate-700/60">
               <div className="flex items-center space-x-3">
-                {user?.image ?
+                {image ?
                   <img
-                    src={user.image}
-                    alt={user?.name || user?.email || ""}
+                    src={image}
+                    alt={name || email || ""}
                     className="w-10 h-10 rounded-full border border-slate-600 object-cover"
                   />
                 : <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white">
@@ -90,13 +90,13 @@ export default function UserDropdown() {
                   </div>
                 }
                 <div className="flex-1 min-w-0">
-                  {user?.name && (
+                  {name && (
                     <p className="text-sm font-semibold text-slate-100 truncate">
-                      {user.name}
+                      {name}
                     </p>
                   )}
                   <p className="text-xs text-slate-400 truncate">
-                    {user?.email}
+                    {email}
                   </p>
                 </div>
               </div>

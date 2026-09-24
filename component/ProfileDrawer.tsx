@@ -25,7 +25,7 @@ import {
   X,
 } from "lucide-react";
 import { toast } from "sonner";
-import { useSession, authClient } from "@/component/lib/auth-client";
+import { useProfileStore } from "@/lib/stores/useProfileStore";
 
 // ─── Schema ────────────────────────────────────────────────────────────────────
 const profileSchema = z.object({
@@ -51,13 +51,12 @@ export default function ProfileDrawer({ isOpen, onOpenChange }: ProfileDrawerPro
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const { data: session } = useSession();
-  const user = session?.user;
+  const { name, email, image, updateProfile } = useProfileStore();
 
   const form = useForm<ProfileFormData>({
     resolver: zodResolver(profileSchema),
     defaultValues: {
-      name: user?.name ?? "",
+      name: name ?? "",
       bio: "",
     },
   });
@@ -115,8 +114,14 @@ export default function ProfileDrawer({ isOpen, onOpenChange }: ProfileDrawerPro
         throw new Error(error ?? "Server error");
       }
 
-      // Force-refresh the session so the navbar avatar updates immediately
-      await authClient.getSession({ fetchOptions: { cache: "no-store" } });
+      const { updated } = await res.json();
+
+      // ✅ Optimistically update Zustand store — navbar refreshes instantly
+      // Only overwrite image if a new one was uploaded (imageUrl will be null otherwise)
+      updateProfile({
+        name: data.name,
+        ...(updated.imageUrl ? { image: updated.imageUrl } : {}),
+      });
 
       // Reset form with saved values so the drawer shows fresh data on next open
       form.reset({ name: data.name, bio: data.bio ?? "" });
@@ -141,7 +146,7 @@ export default function ProfileDrawer({ isOpen, onOpenChange }: ProfileDrawerPro
     }
   };
 
-  const currentAvatar = avatarPreview ?? user?.image ?? null;
+  const currentAvatar = avatarPreview ?? image ?? null;
   const bioValue = form.watch("bio") ?? "";
 
   return (
@@ -289,7 +294,7 @@ export default function ProfileDrawer({ isOpen, onOpenChange }: ProfileDrawerPro
               <Label className="text-slate-300">Email</Label>
               <Input
                 type="email"
-                value={user?.email ?? ""}
+                value={email ?? ""}
                 readOnly
                 className="bg-slate-800/50 border-slate-700 text-slate-400 cursor-not-allowed"
               />
