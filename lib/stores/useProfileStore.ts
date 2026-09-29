@@ -6,6 +6,7 @@ export interface ProfileState {
   email: string | null;
   image: string | null;
   bio: string | null;
+  role: string | null;
   isHydrated: boolean;
 
   /** Populate the store from the better-auth session user object */
@@ -15,6 +16,7 @@ export interface ProfileState {
     email: string;
     image?: string | null;
     bio?: string | null;
+    role?: string | null;
   }) => void;
 
   /** Optimistically update fields after a successful profile save */
@@ -34,6 +36,7 @@ export const useProfileStore = create<ProfileState>((set) => ({
   email: null,
   image: null,
   bio: null,
+  role: null,
   isHydrated: false,
 
   setProfile: (user) =>
@@ -43,6 +46,7 @@ export const useProfileStore = create<ProfileState>((set) => ({
       email: user.email,
       image: user.image ?? null,
       bio: user.bio ?? null,
+      role: user.role ?? null,
       isHydrated: true,
     }),
 
@@ -60,6 +64,7 @@ export const useProfileStore = create<ProfileState>((set) => ({
       email: null,
       image: null,
       bio: null,
+      role: null,
       isHydrated: false,
     }),
 }));

@@ -2,17 +2,18 @@
 
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { User, ChevronDown, LogOut } from "lucide-react";
+import { User, ChevronDown, LogOut, LayoutDashboard } from "lucide-react";
 import { signOut } from "@/component/lib/auth-client";
 import { useProfileStore } from "@/lib/stores/useProfileStore";
 import ProfileDrawer from "./ProfileDrawer";
+import Link from "next/link";
 
 export default function UserDropdown() {
   const [isOpen, setIsOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const { name, email, image } = useProfileStore();
+  const { name, email, image, role } = useProfileStore();
 
   // Close dropdown on outside click, but not while the profile drawer is open
   useEffect(() => {
@@ -112,7 +113,18 @@ export default function UserDropdown() {
               >
                 <User className="w-4 h-4" />
                 <span>Profile</span>
-              </button>
+              </button> 
+
+              {role === "ADMIN" && (
+                <Link 
+                  href="/dashboard"
+                  className="w-full flex items-center space-x-3 px-4 py-2.5 text-sm text-slate-300 hover:text-blue-400 hover:bg-slate-800/70 transition-colors duration-150"
+                  onClick={() => setIsOpen(false)}
+                >
+                  <LayoutDashboard className="w-4 h-4" />
+                  <span>Dashboard</span>
+                </Link>
+              )}
 
               <button
                 onClick={() => {

@@ -5,12 +5,11 @@ export const dynamic = "force-dynamic";
 
 export async function GET(request: NextRequest) {
   try {
-    const authHeader = request.headers.get("authorization");
-    
     const response = await axios.get(`${process.env.NEXT_PUBLIC_BETTER_AUTH_URL}/user/profile`, {
       headers: {
         "Content-Type": "application/json",
-        "Authorization": authHeader || "",
+        // Forward cookies from the incoming request
+        ...(request.headers.get('cookie') ? { cookie: request.headers.get('cookie') } : {})
       },
     });
 
