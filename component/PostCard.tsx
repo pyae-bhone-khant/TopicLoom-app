@@ -11,6 +11,7 @@ import {
 import { useState } from "react"
 import { LikeDrawer } from "./LikeDrawer";
 import { ShareDrawer } from "./ShareDrawer";
+import axiosInstance from "@/component/lib/axiosInstance";
 
 interface PostCardProps {
   id?: number
@@ -56,9 +57,21 @@ export default function PostCard({ id, title, slug, summary, content, featuredIm
     return 'text-xl'
   }
 
-  const handleLike = () => {
-    setIsLiked(prev => !prev)
-    setLikeCount(prev => isLiked ? prev - 1 : prev + 1)
+  const handleLike = async () => {
+    if (!id) return
+
+    try {
+      await axiosInstance.post('/api/post/like', { postId: id })
+      setIsLiked(prev => !prev)
+      setLikeCount(prev => isLiked ? prev - 1 : prev + 1)
+    } catch (error: any) {
+      console.error('Failed to like post:', error)
+      if (error.response?.status === 401) {
+        alert('Please log in to like posts')
+      } else {
+        alert('Failed to like post. Please try again.')
+      }
+    }
   }
 
   const formatRelativeTime = (dateString?: string) => {
