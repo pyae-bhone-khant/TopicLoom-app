@@ -37,7 +37,7 @@ export const useProfileStore = create<ProfileState>((set) => ({
   image: null,
   bio: null,
   role: null,
-  isHydrated: false,
+  isHydrated: true,
 
   setProfile: (user) =>
     set({
@@ -65,6 +65,6 @@ export const useProfileStore = create<ProfileState>((set) => ({
       image: null,
       bio: null,
       role: null,
-      isHydrated: false,
+      isHydrated: true,
     }),
 }));

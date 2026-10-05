@@ -27,7 +27,6 @@ import {
 import { toast } from "sonner";
 import { useProfileStore } from "@/lib/stores/useProfileStore";
 
-// ─── Schema ────────────────────────────────────────────────────────────────────
 const profileSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   bio: z.string().max(160, "Bio must be 160 characters or less").optional(),
@@ -35,18 +34,14 @@ const profileSchema = z.object({
 
 type ProfileFormData = z.infer<typeof profileSchema>;
 
-// ─── Props ─────────────────────────────────────────────────────────────────────
-// Controlled: parent manages open state. No DialogTrigger inside.
 interface ProfileDrawerProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
-// ─── Component ─────────────────────────────────────────────────────────────────
 export default function ProfileDrawer({ isOpen, onOpenChange }: ProfileDrawerProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
-  // avatarFile will be sent to the API on submit
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -61,7 +56,6 @@ export default function ProfileDrawer({ isOpen, onOpenChange }: ProfileDrawerPro
     },
   });
 
-  // ── Avatar handling ──────────────────────────────────────────────────────────
   function applyAvatarFile(file: File) {
     if (!file.type.startsWith("image/")) {
       toast.error("Invalid file", { description: "Please upload an image file." });
@@ -95,7 +89,6 @@ export default function ProfileDrawer({ isOpen, onOpenChange }: ProfileDrawerPro
     if (fileInputRef.current) fileInputRef.current.value = "";
   }
 
-  // ── Submit ───────────────────────────────────────────────────────────────────
   const onSubmit = async (data: ProfileFormData) => {
     setIsLoading(true);
     try {
@@ -116,8 +109,7 @@ export default function ProfileDrawer({ isOpen, onOpenChange }: ProfileDrawerPro
 
       const { updated } = await res.json();
 
-      // ✅ Optimistically update Zustand store — navbar refreshes instantly
-      // Only overwrite image if a new one was uploaded (imageUrl will be null otherwise)
+
       updateProfile({
         name: data.name,
         ...(updated.imageUrl ? { image: updated.imageUrl } : {}),

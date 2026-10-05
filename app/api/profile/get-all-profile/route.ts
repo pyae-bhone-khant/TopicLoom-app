@@ -5,11 +5,10 @@ import axiosInstance from "@/component/lib/axiosInstance";
 
 export const dynamic = "force-dynamic"; 
 
-export async function GET(request: NextRequest) {
+export async function GET(request:  NextRequest ) {
    try {
       const response = await axiosInstance.get('/user/GetAll-UserProfile', {
         headers: {
-          // Forward cookies from the incoming request
           ...(request.headers.get('cookie') ? { cookie: request.headers.get('cookie') } : {})
         }
       });

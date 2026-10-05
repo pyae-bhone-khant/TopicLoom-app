@@ -1,20 +1,19 @@
 "use client"
 import { Button } from "@/components/ui/button"
-import { Command, Share, Bookmark, Heart, Plus, Minus } from "lucide-react";
+import {  Share,  Heart, Plus, Minus } from "lucide-react";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardFooter,
   CardHeader,
-  CardTitle,
 } from "@/components/ui/card"
-import Image from "next/image"
+
 import { useState } from "react"
 import { LikeDrawer } from "./LikeDrawer";
-import { CommentDialog } from "./commandDrawer";
+import { ShareDrawer } from "./ShareDrawer";
 
 interface PostCardProps {
+  id?: number
   title?: string
   slug?: string
   summary?: string
@@ -25,10 +24,21 @@ interface PostCardProps {
     image?: string
     role: string
   }
+  likes?: Array<{
+    user: {
+      id: string
+      name: string
+      email: string
+      image?: string | null
+    }
+  }>
+  createdAt?: string
 }
 
-export default function PostCard({ title, slug, summary, content, featuredImageUrl, author }: PostCardProps) {
+export default function PostCard({ id, title, slug, summary, content, featuredImageUrl, author, likes = [], createdAt }: PostCardProps) {
   const [fontSize, setFontSize] = useState(14)
+  const [isLiked, setIsLiked] = useState(false)
+  const [likeCount, setLikeCount] = useState(likes.length)
 
   const increaseFontSize = () => {
     setFontSize(prev => Math.min(prev + 2, 24))
@@ -46,6 +56,27 @@ export default function PostCard({ title, slug, summary, content, featuredImageU
     return 'text-xl'
   }
 
+  const handleLike = () => {
+    setIsLiked(prev => !prev)
+    setLikeCount(prev => isLiked ? prev - 1 : prev + 1)
+  }
+
+  const formatRelativeTime = (dateString?: string) => {
+    if (!dateString) return '2 hours ago'
+    const date = new Date(dateString)
+    const now = new Date()
+    const diffMs = now.getTime() - date.getTime()
+    const diffMins = Math.floor(diffMs / 60000)
+    const diffHours = Math.floor(diffMins / 60)
+    const diffDays = Math.floor(diffHours / 24)
+
+    if (diffMins < 1) return 'Just now'
+    if (diffMins < 60) return `${diffMins} min ago`
+    if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`
+    if (diffDays < 7) return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`
+    return date.toLocaleDateString()
+  }
+
     return (
          <Card className="mx-auto mt-10 w-full max-w-5xl text-white bg-slate-950/80 border shadow-lg shadow-slate-950/20 border-slate-200/20">
       <CardHeader>
@@ -55,9 +86,9 @@ export default function PostCard({ title, slug, summary, content, featuredImageU
             <div className="flex flex-col">
                 <div className="flex gap-3">
                <h1 className="text-lg font-semibold">{author?.name || "Shin Ye-eun"}</h1>
-               <span className="text-sm bg-slate-800 px-2 py-1 rounded-full  text-slate-400">{author?.role || "Editor"}</span>
+               <span className="text-sm bg-slate-800 px-2 py-1 rounded-full  text-slate-400">{author?.role }</span>
                 </div>
-                <p className="text-sm text-slate-400">2 hours ago</p>
+                <p className="text-sm text-slate-400">{formatRelativeTime(createdAt)}</p>
             </div>
           </div>
           <div className="flex gap-2">
@@ -106,12 +137,21 @@ export default function PostCard({ title, slug, summary, content, featuredImageU
         </div>
       )}
      <CardFooter className="justify-between items-center bg-slate-950/10 gap-2 p-4">
-      <LikeDrawer />
-      <CommentDialog />
-  <Button className="gap-2">
-    <Share className="w-4 h-4" />
-    Share
-  </Button>
+     <div className="flex items-center gap-2">
+      <Button
+        className="gap-2"
+        variant="ghost"
+        onClick={handleLike}
+      >
+          <Heart className={`w-4 h-4 ${isLiked ? 'fill-red-500 text-red-500' : ''}`} />
+           {isLiked ? 'Liked' : 'Like'}
+        </Button>
+        {likeCount > 0 && (
+          <span className="text-sm text-slate-400">{likeCount}</span>
+        )}
+      <LikeDrawer likes={likes} />
+      </div>
+      <ShareDrawer title={title} content={content} id={id} />
 </CardFooter>
     </Card>
     )

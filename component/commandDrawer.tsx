@@ -75,12 +75,12 @@ function CommentThread({
         className="w-8 h-8 rounded-full object-cover shrink-0 mt-1"
       />
       <div className="flex-1 min-w-0">
-        {/* Comment Bubble */}
-        <div className="bg-slate-100 dark:bg-slate-800 rounded-2xl px-3 py-2 inline-block max-w-full">
-          <div className="font-semibold text-sm text-slate-900 dark:text-slate-100">
+        {/* Comment Bubble (Dark Theme) */}
+        <div className="bg-slate-800 rounded-2xl px-3 py-2 inline-block max-w-full">
+          <div className="font-semibold text-sm text-slate-100">
             {comment.user.name}
           </div>
-          <div className="text-sm text-slate-800 dark:text-slate-200 break-words whitespace-pre-wrap">
+          <div className="text-sm text-slate-200 break-words whitespace-pre-wrap">
             {comment.content}
           </div>
         </div>
@@ -91,7 +91,7 @@ function CommentThread({
           
           <button 
             onClick={() => onToggleLike(comment.id)}
-            className={`hover:underline ${comment.isLikedByMe ? 'text-blue-600' : ''}`}
+            className={`hover:underline ${comment.isLikedByMe ? 'text-blue-500' : 'hover:text-slate-300'}`}
           >
             Like
           </button>
@@ -101,7 +101,7 @@ function CommentThread({
               setIsReplying(!isReplying)
               setTimeout(() => inputRef.current?.focus(), 50)
             }}
-            className="hover:underline"
+            className="hover:underline hover:text-slate-300"
           >
             Reply
           </button>
@@ -120,7 +120,7 @@ function CommentThread({
         {isReplying && (
           <div className="flex items-center gap-2 mt-3 mb-2 animate-in fade-in slide-in-from-top-2">
             <img src={CURRENT_USER.image} alt="Me" className="w-6 h-6 rounded-full" />
-            <div className="flex-1 flex items-center bg-slate-100 dark:bg-slate-800 rounded-full px-3 py-1.5">
+            <div className="flex-1 flex items-center bg-slate-800 rounded-full px-3 py-1.5">
               <input
                 ref={inputRef}
                 type="text"
@@ -128,13 +128,13 @@ function CommentThread({
                 onChange={(e) => setReplyContent(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleReplySubmit()}
                 placeholder={`Reply to ${comment.user.name}...`}
-                className="bg-transparent border-none focus:outline-none text-sm w-full"
+                className="bg-transparent text-slate-100 border-none focus:outline-none text-sm w-full placeholder:text-slate-400"
                 disabled={isSubmitting}
               />
               <button 
                 onClick={handleReplySubmit}
                 disabled={!replyContent.trim() || isSubmitting}
-                className="text-blue-500 hover:text-blue-600 disabled:opacity-50 disabled:cursor-not-allowed ml-2"
+                className="text-blue-500 hover:text-blue-400 disabled:opacity-50 disabled:cursor-not-allowed ml-2"
               >
                 {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
               </button>
@@ -144,7 +144,7 @@ function CommentThread({
 
         {/* Render Nested Children */}
         {comment.children && comment.children.length > 0 && (
-          <div className="pl-4 border-l-2 border-slate-100 dark:border-slate-800 mt-2">
+          <div className="pl-4 border-l-2 border-slate-800 mt-2">
             {comment.children.map((child) => (
               <CommentThread 
                 key={child.id} 
@@ -269,15 +269,23 @@ export function CommentDialog({ postId = 1 }: { postId?: number }) {
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger >
-        <Button className="gap-2" variant="outline">
-          <MessageCircle className="w-4 h-4" />
-          Comment
+      {/* 
+        Fixed Hydration Error here: 
+        DialogTrigger ကို asChild မပေးဘဲ ဖွင့်ထားပြီး 
+        Shadcn Button ကို asChild ပေးကာ <span> နဲ့ အုပ်ပေးလိုက်ပါတယ်။ 
+      */}
+      <DialogTrigger>
+        <Button asChild className="gap-2" variant="outline">
+          <span>
+            <MessageCircle className="w-4 h-4" />
+            Comment
+          </span>
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="sm:max-w-2xl h-[85vh] flex flex-col p-0 gap-0 overflow-hidden bg-white dark:bg-slate-950">
-        <DialogHeader className="p-4 border-b border-slate-200 dark:border-slate-800 flex flex-col items-center justify-center relative">
+      {/* Dark Theme Dialog Content */}
+      <DialogContent className="sm:max-w-2xl h-[85vh] flex flex-col p-0 gap-0 overflow-hidden bg-slate-950 text-slate-100 border border-slate-800">
+        <DialogHeader className="p-4 border-b border-slate-800 flex flex-col items-center justify-center relative">
           <DialogTitle className="text-center font-bold text-lg">
             Alice&apos;s Post
           </DialogTitle>
@@ -309,14 +317,14 @@ export function CommentDialog({ postId = 1 }: { postId?: number }) {
           )}
         </div>
 
-        {/* Fixed Bottom Input Area */}
-        <div className="p-4 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 flex gap-2 items-start">
+        {/* Fixed Bottom Input Area (Dark Theme) */}
+        <div className="p-4 border-t border-slate-800 bg-slate-950 flex gap-2 items-start">
           <img
             src={CURRENT_USER.image}
             alt="Current User"
             className="w-9 h-9 rounded-full object-cover"
           />
-          <div className="flex-1 bg-slate-100 dark:bg-slate-800 rounded-2xl p-2 flex flex-col gap-2">
+          <div className="flex-1 bg-slate-800 rounded-2xl p-2 flex flex-col gap-2">
             <input
               type="text"
               value={mainInput}
@@ -324,19 +332,19 @@ export function CommentDialog({ postId = 1 }: { postId?: number }) {
               onKeyDown={(e) => e.key === 'Enter' && handleAddComment()}
               placeholder="Write a comment..."
               disabled={isSubmitting}
-              className="bg-transparent border-none focus:outline-none w-full px-2 text-sm disabled:opacity-50"
+              className="bg-transparent text-slate-100 border-none focus:outline-none w-full px-2 text-sm disabled:opacity-50 placeholder:text-slate-400"
             />
             <div className="flex justify-between items-center px-2">
-              <div className="flex items-center gap-3 text-slate-500">
-                <Smile className="w-5 h-5 cursor-pointer hover:text-slate-700" />
-                <Camera className="w-5 h-5 cursor-pointer hover:text-slate-700" />
-                <Gift className="w-5 h-5 cursor-pointer hover:text-slate-700" />
-                <Sticker className="w-5 h-5 cursor-pointer hover:text-slate-700" />
+              <div className="flex items-center gap-3 text-slate-400">
+                <Smile className="w-5 h-5 cursor-pointer hover:text-slate-200" />
+                <Camera className="w-5 h-5 cursor-pointer hover:text-slate-200" />
+                <Gift className="w-5 h-5 cursor-pointer hover:text-slate-200" />
+                <Sticker className="w-5 h-5 cursor-pointer hover:text-slate-200" />
               </div>
               <button 
                 onClick={() => handleAddComment()}
                 disabled={!mainInput.trim() || isSubmitting}
-                className="text-blue-500 hover:text-blue-600 cursor-pointer disabled:opacity-50 flex items-center justify-center w-6 h-6"
+                className="text-blue-500 hover:text-blue-400 cursor-pointer disabled:opacity-50 flex items-center justify-center w-6 h-6"
               >
                 {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
               </button>
@@ -346,7 +354,4 @@ export function CommentDialog({ postId = 1 }: { postId?: number }) {
       </DialogContent>
     </Dialog>
   )
-} 
-
-
-
+}
