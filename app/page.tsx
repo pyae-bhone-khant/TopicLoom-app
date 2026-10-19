@@ -22,63 +22,14 @@ interface Post {
       image?: string | null
       role?: string
     }
-  }>
+  }> 
+  likeCount: number
+  isLiked: boolean
   createdAt: string
   updatedAt: string
 }
 
-const samplePosts: Post[] = [
-  {
-    id: 1,
-    title: '၂၀၂၆ ခုနှစ်အတွက် ဝက်ဘ်ဖွံ့ဖြိုးတိုးတက်မှု အလားအလာများ',
-    content: 'ယနေ့ခေတ်တွင် ဝက်ဘ်နည်းပညာများသည် အလွန်လျင်မြန်စွာ တိုးတက်လျက်ရှိပါသည်။ React, Vue စသည့် Framework များအပြင် Server-side rendering နည်းပညာများသည်လည်း ပိုမိုတွင်ကျယ်လာပါသည်။...',
-    author: {
-      id: 'cmuf82acx000164ursuqhgjvd',
-      name: 'မြမြ',
-      email: 'author@example.com',
-      image: null,
-      role: 'EDITOR'
-    },
-    likes: [
-      {
-        user: {
-          id: 'cmuf82bi8000264urp0osycz7',
-          name: 'အောင်အောင်',
-          email: 'reader@example.com',
-          image: null,
-          role: 'EDITOR'
-        }
-      }
-    ],
-    createdAt: '2026-10-05T03:01:00.000Z',
-    updatedAt: '2026-10-05T03:01:00.000Z'
-  },
-  {
-    id: 2,
-    title: 'နေ့စဉ်ဘဝတွင် ဉာဏ်ရည်တု (AI) ၏ အခန်းကဏ္ဍ',
-    content: 'AI သည် ယခုအခါ စီးပွားရေးလုပ်ငန်းများသာမက သာမန်လူတို့၏ နေ့စဉ်ဘဝတွင်ပါ မရှိမဖြစ် ပါဝင်လာပြီ ဖြစ်ပါသည်။...',
-    author: {
-      id: 'cmuf8297m000064ur83ce13gd',
-      name: 'ကျော်စွာ',
-      email: 'admin@example.com',
-      image: null,
-      role: 'EDITOR'
-    },
-    likes: [
-      {
-        user: {
-          id: 'cmuf82bi8000264urp0osycz7',
-          name: 'အောင်အောင်',
-          email: 'reader@example.com',
-          image: null,
-          role: 'EDITOR'
-        }
-      }
-    ],
-    createdAt: '2026-10-05T01:00:00.000Z',
-    updatedAt: '2026-10-05T01:00:00.000Z'
-  }
-]
+
 
 export default function Home() {
   const [posts, setPosts] = useState<Post[]>([])
@@ -93,7 +44,7 @@ export default function Home() {
 
         if (response.status === 401) {
           console.log("User not authenticated, using sample data")
-          setPosts(samplePosts)
+          setPosts([])
           setLoading(false)
           return
         }
@@ -102,13 +53,19 @@ export default function Home() {
         setPosts(data)
       } catch (error) {
         console.error("Failed to fetch posts:", error)
-        setPosts(samplePosts)
+        setPosts([])
       } finally {
         setLoading(false)
       }
     }
 
-    fetchPosts()
+    fetchPosts() 
+    
+    const interval = setInterval(() => {
+      fetchPosts()
+    }, 30000)
+    
+    return () => clearInterval(interval)
   }, [])
 
   if (loading) {
@@ -134,7 +91,9 @@ export default function Home() {
               image: post.author.image || undefined
             }}
             likes={post.likes}
+            likeCount={post.likeCount}
             createdAt={post.createdAt}
+            isLiked={post.isLiked}
           />
         ))}
       </div>

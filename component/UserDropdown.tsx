@@ -115,8 +115,8 @@ export default function UserDropdown() {
                 <span>Profile</span>
               </button> 
 
-              {role === "ADMIN" && (
-                <Link 
+              {(role === "ADMIN" || role === "EDITOR") && (
+                <Link
                   href="/dashboard"
                   className="w-full flex items-center space-x-3 px-4 py-2.5 text-sm text-slate-300 hover:text-blue-400 hover:bg-slate-800/70 transition-colors duration-150"
                   onClick={() => setIsOpen(false)}

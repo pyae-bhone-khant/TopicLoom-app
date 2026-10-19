@@ -33,13 +33,14 @@ interface PostCardProps {
       image?: string | null
     }
   }>
+  likeCount?: number
   createdAt?: string
+  isLiked?: boolean
 }
 
-export default function PostCard({ id, title, slug, summary, content, featuredImageUrl, author, likes = [], createdAt }: PostCardProps) {
+export default function PostCard({ id, title, slug, summary, content, featuredImageUrl, author, likes = [], likeCount , createdAt, isLiked: initialIsLiked = false }: PostCardProps) {
   const [fontSize, setFontSize] = useState(14)
-  const [isLiked, setIsLiked] = useState(false)
-  const [likeCount, setLikeCount] = useState(likes.length)
+  const [isLiked, setIsLiked] = useState(initialIsLiked)
 
   const increaseFontSize = () => {
     setFontSize(prev => Math.min(prev + 2, 24))
@@ -63,7 +64,6 @@ export default function PostCard({ id, title, slug, summary, content, featuredIm
     try {
       await axiosInstance.post('/api/post/like', { postId: id })
       setIsLiked(prev => !prev)
-      setLikeCount(prev => isLiked ? prev - 1 : prev + 1)
     } catch (error: any) {
       console.error('Failed to like post:', error)
       if (error.response?.status === 401) {
@@ -95,7 +95,7 @@ export default function PostCard({ id, title, slug, summary, content, featuredIm
       <CardHeader>
         <div className="flex justify-between items-start">
           <div className="flex gap-3">
-            <img src={author?.image || "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQQJvILEyVElWtXq9byw3QWD4b_AoXodTdQW_sThDjHs9OckMykPGPB30parJDG_Q81nQxj5vUUuGCulY-di4JPRwRSWFByvVLehcQm3HBt&s=10"} alt="Profile" width={50} height={50} className="rounded-full" />
+            <img src={author?.image} alt="Profile" width={50} height={50} className="rounded-full" />
             <div className="flex flex-col">
                 <div className="flex gap-3">
                <h1 className="text-lg font-semibold">{author?.name || "Shin Ye-eun"}</h1>
@@ -159,7 +159,7 @@ export default function PostCard({ id, title, slug, summary, content, featuredIm
           <Heart className={`w-4 h-4 ${isLiked ? 'fill-red-500 text-red-500' : ''}`} />
            {isLiked ? 'Liked' : 'Like'}
         </Button>
-        {likeCount > 0 && (
+        {likeCount && likeCount > 0 && (
           <span className="text-sm text-slate-400">{likeCount}</span>
         )}
       <LikeDrawer likes={likes} />

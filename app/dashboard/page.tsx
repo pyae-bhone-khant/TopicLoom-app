@@ -1,27 +1,55 @@
+"use client";
+
+import axiosInstance from "@/component/lib/axiosInstance";
+import Image from "next/image";
+import { useEffect, useState } from "react";
+import TotalCard from "./components/totalCard";
+import TotalUserAndPost from "./components/totalUserandPost";
+
+
+interface DashboardData {
+  editorLength: number;
+  userLength: number;
+  postLength: number;
+  user: {
+    id: string;
+    name: string;
+    image: string | null;
+    createdAt: string;
+    role: string;
+  }[];
+  post: {
+    title: string;
+    createdAt: string;
+    author: {
+      name: string;
+      image: string | null;
+    };
+  }[];
+}
+
 export default function DashboardPage() {
+    const [data, setData] = useState<DashboardData | null>(null);
+ useEffect(() => {
+  const fetchData = async () => {
+     const response  = await axiosInstance.get("/api/dashboard/overview");
+     console.log(response.data);
+     setData(response.data);
+  };
+  fetchData();
+ }, []);
   return (
     <div>
       <h1 className="text-3xl font-bold text-slate-100 mb-6">Dashboard Overview</h1>
       
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div className="bg-slate-900 border border-slate-800 rounded-xl p-6">
-          <h3 className="text-slate-400 text-sm mb-2">Total Users</h3>
-          <p className="text-3xl font-bold text-slate-100">1,234</p>
-        </div>
-        <div className="bg-slate-900 border border-slate-800 rounded-xl p-6">
-          <h3 className="text-slate-400 text-sm mb-2">Total Posts</h3>
-          <p className="text-3xl font-bold text-slate-100">567</p>
-        </div>
-        <div className="bg-slate-900 border border-slate-800 rounded-xl p-6">
-          <h3 className="text-slate-400 text-sm mb-2">Active Sessions</h3>
-          <p className="text-3xl font-bold text-slate-100">89</p>
-        </div>
-      </div>
+    <TotalCard editorlength={data?.editorLength || 0} userlength={data?.userLength || 0} postlength={data?.postLength || 0} />
 
-      <div className="bg-slate-900 border border-slate-800 rounded-xl p-6">
-        <h2 className="text-xl font-bold text-slate-100 mb-4">Recent Activity</h2>
-        <p className="text-slate-400">No recent activity to display.</p>
-      </div>
+    {data && (
+      <TotalUserAndPost 
+    users={data.user} 
+    posts={data.post}
+      />
+    )}
     </div>
   )
 }

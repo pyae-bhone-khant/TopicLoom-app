@@ -1,30 +1,40 @@
-export default function DashboardLayout({
+import DashboardNavbar from "./components/DashboardNavbar";
+import { redirect } from "next/navigation";
+import { headers } from "next/headers";
+
+export default async function DashboardLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+  // Check user role
+  let userRole = null;
+  try {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_BETTER_AUTH_URL}/user/profile`, {
+      headers: {
+        "Content-Type": "application/json",
+        cookie: (await headers()).get('cookie') || '',
+      },
+      cache: 'no-store',
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      userRole = data?.role;
+    }
+  } catch (error) {
+    console.error("Error fetching user role:", error);
+  }
+
+  // Redirect non-admin and non-editor users
+  if (userRole !== 'ADMIN' && userRole !== 'EDITOR') {
+    redirect('/');
+  }
+
   return (
     <div className="min-h-screen bg-slate-950">
       <div className="flex">
-        {/* Sidebar */}
-        <aside className="w-64 bg-slate-900 border-r border-slate-800 min-h-screen p-6">
-          <h2 className="text-xl font-bold text-slate-100 mb-8">Dashboard</h2>
-          <nav className="space-y-2">
-            <a href="/dashboard" className="block px-4 py-2 rounded-lg bg-slate-800 text-slate-100">
-              Overview
-            </a>
-            <a href="/dashboard/users" className="block px-4 py-2 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-slate-100 transition-colors">
-              Users
-            </a>
-            <a href="/dashboard/posts" className="block px-4 py-2 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-slate-100 transition-colors">
-              Posts
-            </a>
-            <a href="/dashboard/settings" className="block px-4 py-2 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-slate-100 transition-colors">
-              Settings
-            </a>
-          </nav>
-        </aside>
-
+        <DashboardNavbar />
         
         <main className="flex-1 p-8">
           {children}
