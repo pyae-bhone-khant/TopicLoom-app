@@ -12,14 +12,16 @@ export default function CreatePostDrawer({ isOpen, onClose }: CreatePostDrawerPr
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [featuredImageUrl, setFeaturedImageUrl] = useState("");
-  const [status, setStatus] = useState("DRAFT");
   const [uploading, setUploading] = useState(false);
+  const [creating, setCreating] = useState(false);
+  const [formError, setFormError] = useState("");
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     setUploading(true);
+    setFormError("");
     const formData = new FormData();
     formData.append("file", file);
 
@@ -29,9 +31,15 @@ export default function CreatePostDrawer({ isOpen, onClose }: CreatePostDrawerPr
         body: formData,
       });
       const data = await response.json();
+
+      if (!response.ok || typeof data.url !== "string" || !data.url) {
+        throw new Error(data.error || "Image upload failed. Please try again.");
+      }
+
       setFeaturedImageUrl(data.url);
     } catch (error) {
       console.error("Error uploading image:", error);
+      setFormError(error instanceof Error ? error.message : "Image upload failed. Please try again.");
     } finally {
       setUploading(false);
     }
@@ -39,7 +47,10 @@ export default function CreatePostDrawer({ isOpen, onClose }: CreatePostDrawerPr
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+    if (uploading || creating) return;
+
+    setCreating(true);
+    setFormError("");
     try {
       const response = await fetch("/api/dashboard/post/create-post", {
         method: "POST",
@@ -48,17 +59,22 @@ export default function CreatePostDrawer({ isOpen, onClose }: CreatePostDrawerPr
           title,
           content,
           featuredImageUrl,
-          status,
+          status: "DRAFT",
         }),
       });
 
-      if (response.ok) {
-        onClose();
-        // Refresh posts
-        window.location.reload();
+      if (!response.ok) {
+        const data = await response.json().catch(() => null);
+        throw new Error(data?.error || "Failed to create post. Please try again.");
       }
+
+      onClose();
+      window.location.reload();
     } catch (error) {
       console.error("Error creating post:", error);
+      setFormError(error instanceof Error ? error.message : "Failed to create post. Please try again.");
+    } finally {
+      setCreating(false);
     }
   };
 
@@ -128,30 +144,20 @@ export default function CreatePostDrawer({ isOpen, onClose }: CreatePostDrawerPr
                 />
               )}
             </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-slate-300 mb-2">
-              Status
-            </label>
-            <select
-              value={status}
-              onChange={(e) => setStatus(e.target.value)}
-              className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="DRAFT">DRAFT</option>
-              <option value="PENDING_REVIEW">PENDING_REVIEW</option>
-              <option value="SCHEDULED">SCHEDULED</option>
-              <option value="PUBLISHED">PUBLISHED</option>
-            </select>
+            {formError && (
+              <p role="alert" className="mt-2 text-sm text-red-400">
+                {formError}
+              </p>
+            )}
           </div>
 
           <button
             type="submit"
-            className="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+            disabled={uploading || creating}
+            className="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors disabled:cursor-not-allowed disabled:opacity-50"
           >
-            Create Post
-          </button>
+            {creating ? "Creating..." : uploading ? "Wait for image upload..." : "Create Post"}
+          </button>  
         </form>
       </div>
     </div>

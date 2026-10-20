@@ -24,17 +24,14 @@ interface TotalUserAndPostProps {
 }
 
 export default function TotalUserAndPost({ users, posts }: TotalUserAndPostProps) {
-  // Default ပုံကို Variable တစ်ခုအနေနဲ့ သတ်မှတ်ထားလိုက်ပါမယ်
+  
   const defaultAvatar = "https://media.istockphoto.com/id/1300845620/vector/user-icon-flat-isolated-on-white-background-user-symbol-vector-illustration.jpg?s=612x612&w=0&k=20&c=yBeyba0hUkh14_jgv1OKqIH0CCSWU_4ckRkAoy2p73o=";
 
   return (
     <div className="bg-slate-900 border border-slate-800 rounded-xl p-6">
       <h2 className="text-xl font-bold text-slate-100 mb-6">Recent Activity</h2>
-
-      {/* Grid သုံးပြီး ဘယ်ဘက်မှာ User, ညာဘက်မှာ Post ပြပါမယ် */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         
-        {/* === New Users List === */}
         <div className="space-y-4">
           <h3 className="text-slate-300 text-xs font-semibold uppercase tracking-wider border-b border-slate-800 pb-2">
             New Users Registered
